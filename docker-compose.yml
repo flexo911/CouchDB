@@ -1,0 +1,33 @@
+services:
+  couchdb:
+    image: couchdb:3.3.2
+    ports:
+      - "5984:5984" # Прокидання порту CouchDB
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: password
+    volumes:
+      - couchdb_data:/opt/couchdb/data
+    networks:
+      - app-network2
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80" # Вебсервер на порту 8080
+    networks:
+      - app-network2
+    depends_on:
+      - couchdb
+    volumes:
+      - ./app:/var/www/html
+      - ./apache-config:/etc/apache2/sites-available
+
+networks:
+  app-network2:
+    driver: bridge
+
+volumes:
+  couchdb_data:
